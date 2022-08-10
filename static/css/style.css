@@ -1,0 +1,14 @@
+main {
+    text-align: center;
+}
+.oneblock {
+    background: black;
+    color: white;
+}
+a {
+    text-decoration: none;
+}
+.add_post {
+    margin-left: 20%;
+    width: 60%;
+}

@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ context.title }}
+{% endblock %}
+
+{% block body %}
+    <h1>{{ context.body }}</h1><br>
+    <div class="add_post">
+        {% for el in context.posts %}
+            <div class="alert alert-info">
+                <span>Title: </span>{{ el.title }}<br>
+                <span>Intro: </span>{{ el.intro }}<br>
+                <p>Date: {{ el.date.date() }}</p>
+                <a class="btn btn-info" href="/all_articles/{{ el.id }}">More</a>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
