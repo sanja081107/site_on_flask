@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ context.title }}
+{% endblock %}
+
+{% block body %}
+    <h1>{{ context.body }}</h1><br>
+    <div class="add_post">
+            <div class="alert alert-info">
+                <div class="text">
+                    <span>Title: </span>{{ context.post.title }}<br>
+                    <span>Specifications: </span>{{ context.post.intro }}<br>
+                    <span>Full description: </span>{{ context.post.text }}<br>
+                    <span>Date: </span>{{ context.post.date.date() }}<br>
+                    <span>Price: </span>{{ context.post.price }} $ <br><br>
+                </div>
+                <a class="btn btn-outline-info" href="/update/{{ context.post.id }}">Обновить</a>
+                <a class="btn btn-outline-danger" href="/delete/{{ context.post.id }}">Удалить</a>
+                <a class="btn btn-outline-secondary" href="/products_all">Назад</a>
+            </div>
+    </div>
+{% endblock %}

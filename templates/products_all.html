@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ context.title }}
+{% endblock %}
+
+{% block body %}
+    <h1>{{ context.body }}</h1><br>
+    <div class="add_post">
+        {% if context.posts %}
+            {% for el in context.posts %}
+                <div class="alert alert-info">
+                    <span>Title: </span>{{ el.title }}<br>
+                    <span>Specifications: </span>{{ el.intro }}<br>
+                    <span>Date: </span>{{ el.date.date() }}<br>
+                    <span>Price: </span>{{ el.price }} $ <br><br>
+                    <a class="btn btn-info" href="/products_all/{{ el.id }}">Подробнее</a>
+                    <a class="btn btn-outline-success" href="/product_buy/{{ el.id }}">Купить товар</a>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="alert alert-secondary">
+                <h3>У вас нет еще товаров</h3><br>
+                <a class="btn btn-outline-dark" href="/{{ context.menu[1].url_name }}">Создать мой первый товар</a><br><br>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

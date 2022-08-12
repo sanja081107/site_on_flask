@@ -1,8 +1,9 @@
 from flask import Flask, render_template, url_for, request, redirect
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from cloudipsp import Api, Checkout
 
-# -------------------------------------------------------------------
+# DataBases---------------------------------------------------------------
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///sqlite.db'
@@ -14,16 +15,17 @@ class Article(db.Model):
     title = db.Column(db.String(100), nullable=False)
     intro = db.Column(db.String(300), nullable=False)
     text = db.Column(db.Text, nullable=False)
+    price = db.Column(db.Integer, nullable=False)
     date = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):
         return '<Article %r>' % self.id
 
-# -------------------------------------------------------------------
+# Mixins-------------------------------------------------------------------
 
 menu = [{'title': 'Главная', 'url_name': ''},
-        {'title': 'Добавить статью', 'url_name': 'add_article'},
-        {'title': 'Все статьи', 'url_name': 'all_articles'},
+        {'title': 'Добавить товар', 'url_name': 'product_add'},
+        {'title': 'Все товары', 'url_name': 'products_all'},
         {'title': 'Обо мне', 'url_name': 'about'}]
 
 def get_user_data(**kwargs):
@@ -32,7 +34,7 @@ def get_user_data(**kwargs):
     context['menu'] = menus
     return context
 
-# -------------------------------------------------------------------
+# Functions----------------------------------------------------------------
 
 @app.route(f"/{menu[0]['url_name']}")
 def home():
@@ -41,10 +43,10 @@ def home():
 
 
 @app.route(f"/{menu[1]['url_name']}", methods=['GET', 'POST'])
-def add_article():
+def product_add():
     if request.method == 'POST':
         form = request.form
-        post = Article(title=form['title'], intro=form['intro'], text=form['text'])
+        post = Article(title=form['title'], intro=form['intro'], text=form['text'], price=form['price'])
         try:
             db.session.add(post)
             db.session.commit()
@@ -53,47 +55,43 @@ def add_article():
         except:
             return 'Error'
 
-    context = get_user_data(title='Add', body='Add article page')
-    return render_template('add_article.html', context=context)
+    context = get_user_data(title='Add product', body='Add product page')
+    return render_template('product_add.html', context=context)
 
 @app.route(f"/{menu[2]['url_name']}")
-def all_articles():
+def products_all():
     posts = Article.query.order_by(Article.date.desc()).all()
-    context = get_user_data(title='All', body='All articles page')
+    context = get_user_data(title='All products', body='All products page')
     context['posts'] = posts
-    return render_template('posts.html', context=context)
+    return render_template('products_all.html', context=context)
 
 @app.route(f"/{menu[2]['url_name']}/<int:pk>")
-def post_detail(pk):
+def product_detail(pk):
     posts = Article.query.get(pk)
     context = get_user_data(title='Detail', body='Detail page')
     context['post'] = posts
-    return render_template('post_detail.html', context=context)
-
-@app.route(f"/{menu[3]['url_name']}")
-def about():
-    context = get_user_data(title='About', body='About page')
-    return render_template('about.html', context=context)
+    return render_template('product_detail.html', context=context)
 
 @app.route(f"/update/<int:id>", methods=['GET', 'POST'])
-def post_update(id):
-    context = get_user_data(title='Update', body='Update page')
+def product_update(id):
+    context = get_user_data(title='Update product', body='Update product page')
     post = Article.query.get(id)
     context['post'] = post
     if request.method == 'POST':
         post.title = request.form['title']
         post.intro = request.form['intro']
         post.text = request.form['text']
+        post.price = request.form['price']
         try:
             db.session.commit()
             return redirect(f"/{menu[2]['url_name']}/{id}")
         except:
             return 'Error update'
 
-    return render_template('post_update.html', context=context)
+    return render_template('product_update.html', context=context)
 
 @app.route(f"/delete/<int:id>")
-def post_delete(id):
+def product_delete(id):
     context = get_user_data(title='Delete', body='Delete page')
     post = Article.query.get_or_404(id)
     try:
@@ -102,6 +100,25 @@ def post_delete(id):
         return redirect(f"/{menu[2]['url_name']}")
     except:
         return 'Error delete'
+
+@app.route(f"/product_buy/<int:id>")
+def product_bye(id):
+    post = Article.query.get(id)
+    api = Api(merchant_id=1396424,
+              secret_key='test')
+    checkout = Checkout(api=api)
+    data = {
+        "currency": "USD",
+        "amount": post.price*100
+    }
+    url = checkout.url(data).get('checkout_url')
+    return redirect(url)
+
+@app.route(f"/{menu[3]['url_name']}")
+def about():
+    context = get_user_data(title='About', body='About page')
+    return render_template('about.html', context=context)
+
 
 # -------------------------------------------------------------------
 
