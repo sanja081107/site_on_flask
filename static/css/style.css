@@ -18,3 +18,11 @@ a {
 span {
     font-weight: bold;
 }
+@media screen and (min-width: 900px) {
+    .mybtn {
+        display: none;
+    }
+}
+.mybtn {
+    width: 40%;
+}

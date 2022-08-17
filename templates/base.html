@@ -94,6 +94,10 @@
 </header>
     <main>
         <div class="container py-5">
+            <h1>{{ context.body }}</h1><br>
+            {% for el in context.menu %}
+                <p><a class="mybtn btn btn-outline-secondary" href="/{{ el.url_name }}">{{ el.title }}</a></p>
+            {% endfor %}
             {% block body %}{% endblock %}
         </div>
     </main>
